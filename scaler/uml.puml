@@ -1,0 +1,41 @@
+@startuml
+namespace scaler {
+    interface Aggregator  {
+        + Aggregate(replicas []int32, interval time.Duration, windowSize int) ([]int32, time.Duration)
+
+    }
+    class MaxWindow << (S,Aquamarine) >> {
+        + Aggregate(replicas []int32, interval time.Duration, windowSize int) ([]int32, time.Duration)
+
+    }
+    class SlopeWindow << (S,Aquamarine) >> {
+        + Aggregate(replicas []int32, interval time.Duration, windowSize int) ([]int32, time.Duration)
+    }
+    class Scaler << (S,Aquamarine) >> {
+        - recvChan <font color=blue>chan</font> []float64
+
+        + MaxReplica int32
+        + MinReplica int32
+        + ScaleTargetRef v2.CrossVersionObjectReference
+        + ScaleDownSeed *time.Time
+
+        + RecvChan() <font color=blue>chan</font> []float64
+        + UpTo(replica int32) error
+        + CheckSeed(dur int) bool
+        + DownWithStep(step int32) error
+        + ManageOnePeriod(replicas []int32, interval time.Duration,aggregator Aggregator)
+
+    }
+}
+namespace autoscaling/v2{
+    class CrossVersionObjectReference << (S,Aquamarine) >>{
+        + Kind string
+        + Name string
+        + APIVersion string
+    }
+}
+"autoscaling/v2.CrossVersionObjectReference" <.. "scaler.Scaler"
+"scaler.Aggregator" <|.. "scaler.SlopeWindow"
+"scaler.Aggregator" <|.. "scaler.MaxWindow"
+"scaler.Aggregator" <.left. "scaler.Scaler"
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+namespace scheduler {
+    class Conf << (S,Aquamarine) >> {
+        - needTrain bool
+        - trainInterval time.Duration
+        - predictInterval time.Duration
+
+    }
+    class ResPair << (S,Aquamarine) >> {
+        - modelReplica []int32
+        - withModelKey string
+
+    }
+    class Scheduler << (S,Aquamarine) >> {
+        + Name types.NamespacedName
+        + Interval time.Duration
+
+        + DeepCopyInto(out *Scheduler) 
+        + Run(ctx context.Context) 
+
+    }
+}
+
+
+"scheduler.Scheduler" o-- "time.Duration"
+"scheduler.Scheduler" o-- "types.NamespacedName"
+
+@enduml

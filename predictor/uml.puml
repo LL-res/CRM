@@ -1,0 +1,101 @@
+@startuml
+package predictorX {
+  class ExternalPredictorImpl << (S,Aquamarine) >>{
+    -SourceImpl: string
+    -Command: string
+    -Model: <font color=blue>map</font>[string]string
+
+    +StartImplSource(): error
+    +StopImplSource(): error
+    +Init(): void
+    +GetType(): string
+    +Key(): string
+    +Predict(ctx: context.Context): message.PredictResult
+    +Train(ctx: context.Context): (error, <font color=blue>chan</font> <font color=blue>struct</font>{})
+    +Loss(block: bool): float64
+  }
+  interface Predictor {
+    +GetType(): string
+    +Key(): string
+    +Predict(ctx: context.Context): message.PredictResult
+    +Train(ctx: context.Context): error, <font color=blue>chan</font> <font color=blue>struct</font>{}
+    +Loss(block: bool): float64
+  }
+  interface InternalPredictor {
+    +Predictor
+  }
+  interface ExternalPredictor {
+    +Predictor
+    +StartImplSource(): error
+    +StopImplSource(): error
+  }
+
+  class Param << (S,Aquamarine) >>{
+    +WithModelKey: string
+    +PreTrained: bool
+    +MetricCollector: collectorX.CollectorFacade
+    +Command: string
+    +SourceImpl: string
+    +Model: <font color=blue>map</font>[string]string
+  }
+
+}
+
+
+namespace message {
+    class PredictResult << (S,Aquamarine) >> {
+        + StartMetric float64
+        + Loss float64
+        + PredictMetric []float64
+        + LastPointOfReal time.Time
+
+    }
+}
+
+namespace holt_winter {
+    class HoltWinter << (S,Aquamarine) >> {
+        - debug bool
+        - slen int
+        - lookForward int
+        - lookBackward int
+        - alpha float64
+        - beta float64
+        - gamma float64
+        - withModelKey string
+        - collectorWorker collectorX.CollectorFacade
+        - loss float64
+
+        - initialTrend(series []float64) float64
+        - initialSeasonalComponents(series []float64) <font color=blue>map</font>[int]float64
+        - tripleExponentialSmoothing(series []float64) []float64
+
+        + Predict(ctx context.Context) (message.PredictResult, error)
+        + GetType() string
+        + Train(ctx context.Context) (error, <font color=blue>chan</font> <font color=blue>struct</font>{})
+        + Key() string
+        + Loss( bool) float64
+
+    }
+    class Param << (S,Aquamarine) >> {
+        + Slen string
+        + LookForward string
+        + LookBackward string
+        + Alpha string
+        + Beta string
+        + Gamma string
+        + Debug string
+
+    }
+}
+
+
+
+
+predictorX.ExternalPredictor --|> predictorX.Predictor
+predictorX.InternalPredictor --|> predictorX.Predictor
+holt_winter.HoltWinter ..|> predictorX.InternalPredictor
+predictorX.ExternalPredictorImpl ..|> predictorX.ExternalPredictor
+predictorX.ExternalPredictorImpl ..> message.PredictResult
+holt_winter.HoltWinter ..> holt_winter.Param
+
+@enduml

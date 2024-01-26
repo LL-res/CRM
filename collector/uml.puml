@@ -1,0 +1,73 @@
+@startuml
+namespace collectorX {
+    interface Collector  {
+        + Collect(stopChan <font color=blue>chan</font> <font color=blue>struct</font>{}) 
+        + DataCap() int
+        + GetMetrics(length int) []Metric
+
+    }
+    class CollectorConfig << (S,Aquamarine) >> {
+        + DataSource string
+        + ScrapeInterval time.Duration
+        + MaxCap int
+
+    }
+    interface CollectorFacade  {
+        + Init(config CollectorConfig) error
+        + CreateCollector(wmk string) 
+        + DeleteCollector(wmk string) 
+        + GetMetricFromCollector(wmk string) 
+        + GetCapFromCollector(wmk string) 
+
+    }
+    class Metric << (S,Aquamarine) >> {
+        + Value float64
+        + TimeStamp time.Time
+
+    }
+}
+
+
+namespace prometheusCollectorX {
+    class PrometheusCollector << (S,Aquamarine) >> {
+        - promql string
+        - data []collectorX.Metric
+        - client api.Client
+        - historyLength int
+        - scrapeInterval int
+        - firstFull bool
+        - firstStart bool
+
+        + SetPromql(promql string) 
+        + SetClient(client api.Client) 
+        + SetHistoryLength(historyLength int) 
+        + SetScrapeInterval(scrapeInterval int) 
+        + Collect(stopChan <font color=blue>chan</font> <font color=blue>struct</font>{}) 
+        + DataCap() int
+        + GetMetrics(length int) []collectorX.Metric
+
+    }
+    class PrometheusCollectorFacade << (S,Aquamarine) >> {
+
+        - collectors <font color=blue>map</font>[string]collectorX.Collector
+        - scrapeInterval time.Duration
+        - client api.Client
+        - historyLength int
+
+        + Init(config collectorX.CollectorConfig) error
+        + CreateCollector(wmk string) 
+        + DeleteCollector(wmk string) 
+        + GetMetricFromCollector(wmk string) 
+        + GetCapFromCollector(wmk string) 
+
+    }
+}
+
+"prometheusCollectorX.PrometheusCollector" ..|> "collectorX.Collector"
+"prometheusCollectorX.PrometheusCollectorFacade" ..|> "collectorX.CollectorFacade"
+"prometheusCollectorX.PrometheusCollectorFacade" o-- "prometheusCollectorX.PrometheusCollector"
+"prometheusCollectorX.PrometheusCollector" o-- collectorX.Metric
+"prometheusCollectorX.PrometheusCollectorFacade"..> "collectorX.CollectorConfig"
+
+
+@enduml
