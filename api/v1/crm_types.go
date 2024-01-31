@@ -86,6 +86,6 @@ type Collector struct {
 
 // +kubebuilder:object:root=false
 type Models struct {
-	LookForward int                   `json:"lookForward"`
-	Attr        map[string][]BO.Model `json:"attr"`
+	LookForward     int                   `json:"lookForward"`
+	ModelsForMetric map[string][]BO.Model `json:"modelsForMetric"`
 }

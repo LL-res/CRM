@@ -90,7 +90,7 @@ func (hdlr *Controller) handleCreate(ctx context.Context) error {
 	//	pCollector = prometheus_collector.New(ctx, hdlr.instance.Spec.Collector.BaseOnHistory, hdlr.instance.Spec.Collector.ScrapeInterval)
 	//})
 	//err := pCollector.SetServerAddress(hdlr.instance.Spec.Collector.Address)
-	_, err := collector.GetOrNewFacade(time.Duration(hdlr.instance.Spec.Collector.ScrapeInterval*hdlr.instance.Spec.IntervalDuration)*time.Second,
+	collectrFacade, err := collector.GetOrNewFacade(time.Duration(hdlr.instance.Spec.Collector.ScrapeInterval*hdlr.instance.Spec.IntervalDuration)*time.Second,
 		hdlr.instance.Spec.Collector.BaseOnHistory,
 		hdlr.instance.Spec.Collector.Address,
 		consts.PROMETHEUS,
@@ -104,6 +104,7 @@ func (hdlr *Controller) handleCreate(ctx context.Context) error {
 		Namespace: ctx.Value(consts.NAMESPACE).(string),
 		Name:      ctx.Value(consts.NAME).(string),
 	})
+	localKnowledge.CollectorFacade = collectrFacade
 	localKnowledge.Scaler = localKnowledge.Scaler.New(ctx.Value(consts.NAMESPACE).(string), hdlr.instance.Spec.ScaleTargetRef, hdlr.instance.Spec.MaxReplicas, hdlr.instance.Spec.MinReplicas)
 	log.Logger.Info("init scaler", "scaler", localKnowledge.Scaler)
 	if err := hdlr.handleMetrics(ctx); err != nil {
@@ -215,7 +216,7 @@ func (hdlr *Controller) handlePredictor(ctx context.Context, changeMap map[key.W
 
 	// sepc 中存在，map中不存在
 	toAdd := make([]mdlMtrc, 0)
-	for key, models := range hdlr.instance.Spec.Models.Attr {
+	for key, models := range hdlr.instance.Spec.Models.ModelsForMetric {
 		metric, ok := hdlr.instance.Spec.Metrics[key]
 		if !ok {
 			// TODO validation
@@ -236,7 +237,7 @@ func (hdlr *Controller) handlePredictor(ctx context.Context, changeMap map[key.W
 	toDelete := make([]key.WithModelKey, 0)
 	// 先将spec中的key都放入tempMap中，再进行比较以降低复杂度
 	tempMap := make(map[key.WithModelKey]struct{})
-	for key, models := range hdlr.instance.Spec.Models.Attr {
+	for key, models := range hdlr.instance.Spec.Models.ModelsForMetric {
 		metric, ok := hdlr.instance.Spec.Metrics[key]
 		if !ok {
 			// TODO validation
@@ -356,7 +357,7 @@ func (hdlr *Controller) handleModels(ctx context.Context) (map[key.WithModelKey]
 	tempMap := make(map[key.WithModelKey]struct{})
 	//Add or change
 	changeMap := make(map[key.WithModelKey]BO.Model)
-	for specKey, models := range hdlr.instance.Spec.Models.Attr {
+	for specKey, models := range hdlr.instance.Spec.Models.ModelsForMetric {
 		metric, ok := hdlr.instance.Spec.Metrics[specKey]
 		if !ok {
 			return nil, errors.New("orphan model")
