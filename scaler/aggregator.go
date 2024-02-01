@@ -1,7 +1,7 @@
 package scaler
 
 import (
-	"github.com/LL-res/AOM/utils"
+	"github.com/LL-res/CRM/utils"
 	"log"
 	"time"
 )

@@ -67,10 +67,16 @@ func (p *PrometheusCollectorFacade) Init(config collectorType.CollectorConfig) e
 }
 
 func (p *PrometheusCollectorFacade) CreateCollector(nmk key.NoModelKey) {
-	p.collectors[nmk] = NewPrometheusCollector(p.client, nmk, p.scrapeInterval, p.historyLength, p.maxCap)
+	pCollector := NewPrometheusCollector(p.client, nmk, p.scrapeInterval, p.historyLength, p.maxCap)
+	p.collectors[nmk] = pCollector
+	stopChan := make(chan struct{}, 1)
+	go pCollector.Collect(stopChan)
+	p.stopChans[nmk] = stopChan
 }
 
 func (p *PrometheusCollectorFacade) DeleteCollector(nmk key.NoModelKey) {
+	stopChan := p.stopChans[nmk]
+	stopChan <- struct{}{}
 	delete(p.collectors, nmk)
 }
 

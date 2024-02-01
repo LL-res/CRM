@@ -1,0 +1,59 @@
+apiVersion: elastic.github.com/v1
+kind: CRM
+metadata:
+  labels:
+    app.kubernetes.io/name: crm
+    app.kubernetes.io/instance: crm-sample
+    app.kubernetes.io/part-of: crm
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: crm
+  name: crm-sample
+spec:
+  intervalDuration: 3
+  minReplicas: 1
+  maxReplicas: 5
+  scaleTargetRef:
+    kind : Deployment
+    name: diagnosis-system-backend
+    apiVersion: apps/v1
+  collector:
+    address: http://192.168.67.2/prometheus
+    maxCap: 2000
+    scrapeInterval: 1
+    baseOnHistory: 2000
+  metrics:
+    entity1:
+      name: http_request
+      weight: 100
+      query: sum(http_requests_total - http_requests_total offset 3s)
+      target: "15"
+      unit: perPod
+  models:
+    lookForward: 24
+    modelsForMetric:
+      entity1:
+        - type: holt_winter
+          needTrain: false
+          debug: true
+          lookBackward: 100
+          attr:
+            slen: "12"
+            alpha: "0.716"
+            beta: "0.029"
+            gamma: "0.993"
+        - type: GRU
+          needTrain: true
+          debug: true
+          preTrained: true
+          sourceImplURL: http://127.0.0.1:5000
+          trainSize: 2000
+          updateInterval: 3000
+          lookBackward: 100
+          attr:
+            epochs: "20"
+            n_layers: "1"
+            batch_size: "10"
+
+
+
+

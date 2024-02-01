@@ -148,7 +148,7 @@ func (s *Scheduler) UpdatePredictors(ctx context.Context) {
 	localKnowledge := knowledge.GetLocalKnowledge(s.Name)
 	trainingSet := make(map[key.WithModelKey]struct{})
 	defer ticker.Stop()
-	for _ = range ticker.C {
+	for ; ; <-ticker.C {
 		for wmk, pred := range localKnowledge.PredictorMap.Data {
 			model, err := localKnowledge.ModelMap.Load(wmk)
 			if err != nil {

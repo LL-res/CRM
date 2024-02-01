@@ -3,7 +3,7 @@ package utils
 import (
 	"context"
 	"fmt"
-	"github.com/LL-res/AOM/common/consts"
+	"github.com/LL-res/CRM/common/consts"
 	"k8s.io/apimachinery/pkg/types"
 	"strings"
 	"time"

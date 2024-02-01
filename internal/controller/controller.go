@@ -44,13 +44,13 @@ func (hdlr *Controller) Handle(ctx context.Context) error {
 	var err error
 	// create instance
 	if hdlr.instance.Status.Generation == 0 {
-		log.Logger.Info("creating aom instance", "namespace", hdlr.instance.Namespace, "name", hdlr.instance.Name)
+		log.Logger.Info("creating crm instance", "namespace", hdlr.instance.Namespace, "name", hdlr.instance.Name)
 		err = hdlr.handleCreate(ctx)
 	}
 	// update instance
 	if hdlr.instance.Status.Generation != 0 &&
 		hdlr.instance.Generation > hdlr.instance.Status.Generation {
-		log.Logger.Info("updating aom instance", "namespace", hdlr.instance.Namespace, "name", hdlr.instance.Name)
+		log.Logger.Info("updating crm instance", "namespace", hdlr.instance.Namespace, "name", hdlr.instance.Name)
 		err = hdlr.handleUpdate(ctx)
 	}
 	if err != nil {

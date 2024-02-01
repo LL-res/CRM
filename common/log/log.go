@@ -9,7 +9,7 @@ import (
 
 var Logger logr.Logger
 
-func Init() {
+func init() {
 	zapLog, _ := zap.NewDevelopment()
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 	Logger = zapr.NewLogger(zapLog)

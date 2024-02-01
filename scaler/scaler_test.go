@@ -2,10 +2,10 @@ package scaler
 
 import (
 	"fmt"
+	"github.com/LL-res/CRM/clients/k8s"
 	"testing"
 	"time"
 
-	"github.com/LL-res/AOM/clients/k8s"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 )
 

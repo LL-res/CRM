@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-// 集群不开启时也可以进行测试
-
 func TestSlopeWindow_Infect(t *testing.T) {
 	infector := SlopeWindow{}
 	replicas1 := make([]int32, 0)

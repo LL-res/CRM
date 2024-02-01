@@ -2,11 +2,11 @@ package scaler
 
 import (
 	"fmt"
-	"github.com/LL-res/AOM/utils"
+	"github.com/LL-res/CRM/clients/k8s"
+	"github.com/LL-res/CRM/common/log"
+	"github.com/LL-res/CRM/utils"
 	"time"
 
-	"github.com/LL-res/AOM/clients/k8s"
-	"github.com/LL-res/AOM/log"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 )
 
@@ -113,7 +113,7 @@ func (s *Scaler) DownWithStep(step int32) error {
 }
 func (s *Scaler) ManageOnePeriod(replicas []int32, interval time.Duration) {
 	infector := NewInfector("SlopeWindow")
-	logReplica, sleepTime := infector.Aggregate(replicas, interval, 0)
+	logReplica, sleepTime := infector.Aggregate(replicas, interval, 3)
 	logReplicaWithTime := make([]string, 0)
 	//log.Logger.Info("scaler is scaling", "replicas", logReplica, "interval", fmt.Sprintf("%fs", sleepTime.Seconds()))
 	for _, v := range logReplica {

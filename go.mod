@@ -3,7 +3,6 @@ module github.com/LL-res/CRM
 go 1.20
 
 require (
-	github.com/LL-res/AOM v0.0.0-20230618142701-090465e83e5d
 	github.com/go-logr/logr v1.2.4
 	github.com/go-logr/zapr v1.2.4
 	github.com/go-resty/resty/v2 v2.11.0
